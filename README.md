@@ -5,7 +5,7 @@ A PyTorch implementation for [Adversarial Discriminative Domain Adaptation](http
 - Python 3.6
 - PyTorch 0.2.0
 
-
+## Results after fixing the bugs
 ![Results](./figures/deeptransferlearning.png)
 
 ## Usage
