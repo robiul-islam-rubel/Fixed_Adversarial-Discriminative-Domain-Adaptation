@@ -5,6 +5,9 @@ A PyTorch implementation for [Adversarial Discriminative Domain Adaptation](http
 - Python 3.6
 - PyTorch 0.2.0
 
+
+![Results](./figures/deeptransferlearning.png)
+
 ## Usage
 
 I only test on MNIST -> USPS, you can just run the following command:
@@ -65,3 +68,4 @@ In this experiment, I use three types of network. They are very simple.
 | Target Encoder + Source Classifier |                |  97.634409%   |
 
 Domain Adaptation does work (97% vs 83%).
+
