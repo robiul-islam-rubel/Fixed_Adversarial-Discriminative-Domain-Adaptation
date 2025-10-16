@@ -13,6 +13,7 @@ import numpy as np
 import torch
 import torch.utils.data as data
 from torchvision import datasets, transforms
+from PIL import Image
 
 import params
 
@@ -61,20 +62,21 @@ class USPS(data.Dataset):
         self.train_data = self.train_data.transpose(
             (0, 2, 3, 1))  # convert to HWC
 
-    def __getitem__(self, index):
-        """Get images and target for data loader.
 
-        Args:
-            index (int): Index
-        Returns:
-            tuple: (image, target) where target is index of the target class.
-        """
+
+    def __getitem__(self, index):
+        """Get images and target for data loader."""
         img, label = self.train_data[index, ::], self.train_labels[index]
+
+        # Convert numpy (H,W,C) to PIL Image
+        img = Image.fromarray(img.astype("uint8").squeeze())
+
         if self.transform is not None:
             img = self.transform(img)
-        label = torch.LongTensor([np.int64(label).item()])
-        # label = torch.FloatTensor([label.item()])
+
+        label = torch.tensor(int(label), dtype=torch.long)
         return img, label
+
 
     def __len__(self):
         """Return size of dataset."""
@@ -114,23 +116,30 @@ class USPS(data.Dataset):
         return images, labels
 
 
-def get_usps(train):
-    """Get USPS dataset loader."""
-    # image pre-processing
-    pre_process = transforms.Compose([transforms.ToTensor(),
-                                      transforms.Normalize(
-                                          mean=params.dataset_mean,
-                                          std=params.dataset_std)])
+def get_usps(train=True, transform=None, batch_size=None):
+    if transform is None:
+        transform = transforms.Compose([
+            transforms.Resize(28),
+            transforms.Grayscale(num_output_channels=1),  
+            transforms.ToTensor(),
+            transforms.Normalize(mean=params.dataset_mean, std=params.dataset_std)
+        ])
+    if batch_size is None:
+        batch_size = params.batch_size
 
-    # dataset and data loader
-    usps_dataset = USPS(root=params.data_root,
-                        train=train,
-                        transform=pre_process,
-                        download=True)
+    usps_dataset = USPS(
+        root=params.data_root,
+        train=train,
+        transform=transform,
+        download=True
+    )
 
     usps_data_loader = torch.utils.data.DataLoader(
         dataset=usps_dataset,
-        batch_size=params.batch_size,
-        shuffle=True)
+        batch_size=batch_size,
+        shuffle=train
+    )
 
     return usps_data_loader
+
+
